@@ -34,6 +34,29 @@
         </div>
       </div>
     </div>
+   
+      <div class="card2">
+        <div class="card-content">
+          <p class="title">
+            <i>"There is Joy in Completion" </i>
+          </p>
+          <p class="subtitle">
+            <i>~ Dr. Akumu J 2022</i>
+          </p>
+        </div>
+        <footer class="card-footer">
+          <p class="card-footer-item">
+            <span>
+              View on <a href="#">Twitter</a>
+            </span>
+          </p>
+          <p class="card-footer-item">
+            <span>
+              Share on <a href="#">Facebook</a>
+            </span>
+          </p>
+        </footer>
+      </div>
   </div>
 </template>
 
@@ -41,9 +64,23 @@
 <script setup>
 // imports
 import { ref, onMounted } from 'vue';
-import { v4 as uuidv4 } from 'uuid';
-import { collection, query, where, getDocs } from "firebase/firestore";
+
+// import { v4 as uuidv4 } from 'uuid';
+
+import { 
+  collection, onSnapshot, addDoc, 
+  doc, updateDoc, deleteDoc, 
+  query, orderBy
+} from "firebase/firestore";
 import {db} from '@/firebase';
+
+/*
+Firebase refs
+*/
+const tasksCollection = collection(db, "tasks")
+const tasksCollectionQuery = query(tasksCollection, orderBy("date", "desc"))
+
+
 /*
 tasks
 */
@@ -61,32 +98,48 @@ const tasks = ref([
 ])
 
 // Get tasks
-onMounted(async () => {
-  const q = query(collection(db, "tasks"))
-let fbTasks = []
-  const querySnapshot = await getDocs(q)
-  querySnapshot.forEach((doc) => {
-  // doc.data() is never undefined for query doc snapshots
-  console.log(doc.id, " => ", doc.data())
-  const task = {
-    id: doc.id,
-    content: doc.data().content,
-    done: doc.data().done
-  }
-  fbTasks.push(task)
-  tasks.value = fbTasks
-})
+onMounted(() => {
+//   const q = query(collection(db, "tasks"))
+// let fbTasks = []
+//   const querySnapshot = await getDocs(q)
+//   querySnapshot.forEach((doc) => {
+//   // doc.data() is never undefined for query doc snapshots
+//   console.log(doc.id, " => ", doc.data())
+//   const task = {
+//     id: doc.id,
+//     content: doc.data().content,
+//     done: doc.data().done
+//   }
+//   fbTasks.push(task)
+//   tasks.value = fbTasks
+// })
+      onSnapshot(tasksCollectionQuery, (querySnapshot) => {
+        const fbTasks = [];
+        querySnapshot.forEach((doc) => {
+          const task = {
+            id: doc.id,
+            content: doc.data().content,
+            done: doc.data().done
+          }
+          fbTasks.push(task)
+        })
+        tasks.value = fbTasks
+      })
 })
 
 const newTaskContent = ref('')
 /*addTask function*/
 const addTask = () => {
-  const newTask = {
-    id: uuidv4(),
+   addDoc(tasksCollection, {
     content: newTaskContent.value,
-    done: false
-  }
-  tasks.value.unshift(newTask)
+    done: false,
+    date: Date.now()
+  })
+  // const newTask = {
+  //   id: uuidv4(),
+  //   content: newTaskContent.value,
+  //   done: false
+  // }
   newTaskContent.value = ''
 }
 
@@ -94,7 +147,7 @@ const addTask = () => {
 removig tasks
 */
 const removeTask = id => {
-  tasks.value = tasks.value.filter(task => task.id !== id)
+  deleteDoc(doc(tasksCollection, id))
 }
 
 /*
@@ -102,7 +155,9 @@ Toggledone taks
 */
 const toggleDone = (id) => {
   const index = tasks.value.findIndex(task => task.id === id)
-  tasks.value[index].done = !tasks.value[index].done
+  updateDoc(doc(tasksCollection, id), {
+  done: !tasks.value[index].done
+})
 }
 </script>
 
@@ -115,5 +170,14 @@ const toggleDone = (id) => {
 }
 .line-through{
   text-decoration: line-through;
+}
+.quote{
+  text-align: center;
+}
+.card2{
+  background-color: lightslategray;
+  border-radius: 10px;
+  text-align: center;
+  font-size: 20px;
 }
 </style>
