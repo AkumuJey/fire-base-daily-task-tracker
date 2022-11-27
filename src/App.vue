@@ -34,36 +34,21 @@
         </div>
       </div>
     </div>
-   
-      <div class="card2">
-        <div class="card-content">
-          <p class="title">
-            <i>"There is Joy in Completion" </i>
-          </p>
-          <p class="subtitle">
-            <i>~ Dr. Akumu J 2022</i>
-          </p>
-        </div>
-        <footer class="card-footer">
-          <p class="card-footer-item">
-            <span>
-              View on <a href="#">Twitter</a>
-            </span>
-          </p>
-          <p class="card-footer-item">
-            <span>
-              Share on <a href="#">Facebook</a>
-            </span>
-          </p>
-        </footer>
-      </div>
+    <Quote />
+    <div class="satisfied">
+      <button @click="satisfy">Satisfied</button>
+    </div>
   </div>
+  <Modal v-if="satisfied" @click="satisfy"/>
 </template>
 
 
 <script setup>
 // imports
 import { ref, onMounted } from 'vue';
+
+import Quote from './components/icons/Quote.vue';
+import Modal from './components/icons/Modal.vue';
 
 // import { v4 as uuidv4 } from 'uuid';
 
@@ -159,6 +144,12 @@ const toggleDone = (id) => {
   done: !tasks.value[index].done
 })
 }
+
+const satisfied = ref(true)
+const satisfy = () => {
+  console.log("Hello World");
+  satisfied.value = !satisfied.value
+} 
 </script>
 
 <style>
@@ -179,5 +170,24 @@ const toggleDone = (id) => {
   border-radius: 10px;
   text-align: center;
   font-size: 20px;
+}
+.satisfied{
+  margin: 25px;
+  display: flex;
+  justify-content: center;
+  padding: 20px;
+  align-content: center;
+  background: black;
+  border-radius: 10px;
+}
+.satisfied button{
+  padding: 10px;
+  background: slateblue;
+  border-radius: 5px;
+  color: white;
+}
+.satisfied button:hover{
+  background-color: slategray;
+  color: white;
 }
 </style>
